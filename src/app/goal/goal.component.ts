@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Goal } from '../goal';
+
+import { Quote } from '../quote-class/quote';
 // import { GoalService } from '../goal-service/goal.service';
 import { AlertService } from '../alert-service/alert.service';
 
@@ -10,6 +13,18 @@ import { AlertService } from '../alert-service/alert.service';
 })
 export class GoalComponent implements OnInit {
 
+  ngOnInit() {
+    interface ApiResponse{
+      author:string;
+      quote:string;
+    }
+
+    this.http.get<ApiResponse>("http://quotes.stormconsultancy.co.uk/random.json").subscribe(data=>{
+      //Successful API Request
+      this.quote = new Quote(data.author,data.quote)
+    })
+  }
+  
   goals: Goal[] = [
     new Goal(1, 'Watch finding Nemo', 'Find an online version and watch merlin find his son', new Date(2020,3,14)),
     new Goal(2,'Buy Cookies','I have to buy cookies for the parrot', new Date(2017,3,24)),
@@ -22,11 +37,13 @@ export class GoalComponent implements OnInit {
 
   // goals:Goal[];
   alertService:AlertService;
+  quote:Quote;
   
-  // constructor(goalService:GoalService, alertService:AlertService) { 
-  //   this.goals = goalService.getGoals()
-  //   this.alertService = alertService;
-  // }
+  // goalService:GoalService,
+  constructor(alertService:AlertService,private http:HttpClient) { 
+    // this.goals = goalService.getGoals()
+    this.alertService = alertService;
+  }
 
   toggleDetails(index){
     this.goals[index].showDescription = !this.goals[index].showDescription;
@@ -49,9 +66,4 @@ export class GoalComponent implements OnInit {
       }
     }
   }
-  constructor() { }
-
-  ngOnInit() {
-  }
-
 }
