@@ -1,10 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Goal } from '../goal';
-
 import { Quote } from '../quote-class/quote';
+
 // import { GoalService } from '../goal-service/goal.service';
 import { AlertService } from '../alert-service/alert.service';
+import { QuoteRequestService } from '../quote-http/quote-request.service';
+
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-goal',
@@ -14,15 +17,21 @@ import { AlertService } from '../alert-service/alert.service';
 export class GoalComponent implements OnInit {
 
   ngOnInit() {
-    interface ApiResponse{
-      author:string;
-      quote:string;
-    }
+    // interface ApiResponse{
+    //   author:string;
+    //   quote:string;
+    // }
 
-    this.http.get<ApiResponse>("http://quotes.stormconsultancy.co.uk/random.json").subscribe(data=>{
-      //Successful API Request
-      this.quote = new Quote(data.author,data.quote)
-    })
+    // this.http.get<ApiResponse>("http://quotes.stormconsultancy.co.uk/random.json").subscribe(data=>{
+    //   //Successful API Request
+    //   this.quote = new Quote(data.author,data.quote)
+    // },err=>{
+    //   this.quote = new Quote("data.author","data.quote")
+    //   console.log("An Error Occurred");
+    // })
+
+    this.quoteService.quoteRequest()
+    this.quote = this.quoteService.quote
   }
   
   goals: Goal[] = [
@@ -40,13 +49,17 @@ export class GoalComponent implements OnInit {
   quote:Quote;
   
   // goalService:GoalService,
-  constructor(alertService:AlertService,private http:HttpClient) { 
+  constructor(alertService:AlertService,private http:HttpClient, private quoteService:QuoteRequestService, private router:Router) { 
     // this.goals = goalService.getGoals()
     this.alertService = alertService;
   }
 
-  toggleDetails(index){
-    this.goals[index].showDescription = !this.goals[index].showDescription;
+  // toggleDetails(index){
+  //   this.goals[index].showDescription = !this.goals[index].showDescription;
+  // }
+
+  goToUrl(id){
+    this.router.navigate(['/goals',id])
   }
 
   addNewGoal(goal){
@@ -56,14 +69,24 @@ export class GoalComponent implements OnInit {
     this.goals.push(goal);
   }
 
-  deleteGoal(isComplete,index){
-    if(isComplete) {
-      let toDelete = confirm(`Are you sure you want to delete ${this.goals[index].name}?`)
+  deleteGoal(index){
+    let toDelete = confirm(`Are you sure you want to delete ${this.goals[index].name}`)
 
-      if(toDelete){
-      this.goals.splice(index,1);
-      this.alertService.alertMe("The goal has been deleted");
-      }
+    if (toDelete){
+      this.goals.splice(index,1)
+      this.alertService.alertMe("Goal has been deleted")
     }
   }
+
+  // deleteGoal(isComplete,index){
+  //   if(isComplete) {
+  //     let toDelete = confirm(`Are you sure you want to delete ${this.goals[index].name}?`)
+
+  //     if(toDelete){
+  //     this.goals.splice(index,1);
+  //     this.alertService.alertMe("The goal has been deleted");
+  //     }
+  //   }
+  // }
+
 }
